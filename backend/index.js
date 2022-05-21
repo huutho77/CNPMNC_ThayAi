@@ -7,7 +7,7 @@ import { connectDB } from "./connectionDB.js";
 dotenv.config();
 
 import productsRouter from "./routes/productsRoute.js";
-import mainRouter from "./routes/mainRoute.js";
+import authRouter from "./routes/authRoute.js";
 
 const app = express();
 var PORT = 3000;
@@ -36,7 +36,7 @@ if (process.env.NODE_ENV != null) {
 }
 
 // Route Default for server
-app.get("/", (req, res, next) => {
+app.get(["/", "/api"], (req, res) => {
   res.json({
     status: 200,
     msg: "This is route default. Please check-out route your need.",
@@ -45,8 +45,8 @@ app.get("/", (req, res, next) => {
 });
 
 // Setup Routes
-app.use("/products", productsRouter);
-app.use("/main", mainRouter);
+app.use("/api/products", productsRouter);
+app.use("/api/auth", authRouter);
 
 app.listen(PORT, (err) => {
   if (!err) {
