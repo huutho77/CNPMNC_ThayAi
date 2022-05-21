@@ -26,22 +26,13 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
-    username: {
-      type: String,
-      default: "",
-      unique: true,
-    },
-    password: {
-      type: String,
-      default: "",
-    },
     countPoint: {
       type: Number,
       default: 0,
     },
-    roleId: {
+    userId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Role",
+      ref: "User",
     },
   },
   {
