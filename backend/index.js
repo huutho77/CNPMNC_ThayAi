@@ -1,12 +1,22 @@
 import express from "express";
 import dotenv from "dotenv";
+import cors from "cors";
+import bodyParser from "body-parser";
+import { connectDB } from "./connectionDB.js";
+
+dotenv.config();
 
 import productsRouter from "./routes/productsRoute.js";
 import mainRouter from "./routes/mainRoute.js";
 
 const app = express();
-dotenv.config();
 var PORT = 3000;
+
+connectDB();
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true, limit: "30mb" }));
+app.use("/", cors());
 
 // Check environment
 if (process.env.NODE_ENV != null) {
