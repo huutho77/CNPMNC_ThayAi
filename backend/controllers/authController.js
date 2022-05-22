@@ -111,5 +111,10 @@ export const signIn = async (req, res) => {
       status: 200,
       accessToken: accessToken,
     });
+  } else {
+    return res.json({
+      status: 403,
+      msg: "Username or Password is incorret. Please input again.",
+    });
   }
 };
