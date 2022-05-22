@@ -18,7 +18,7 @@ export const registerUser = async (req, res) => {
 
   // Check for username and password is missing or empty.
   if (!username || !password) {
-    return res.status(400).json({
+    return res.json({
       statusCode: 400,
       success: false,
       msg: "Username or Password is empty.",
@@ -45,7 +45,7 @@ export const registerUser = async (req, res) => {
     await newUser.save();
 
     // Check for Customer is existing by userId
-    let customer = await CustomerModel.findOne({ userId: user._id });
+    let customer = await CustomerModel.findOne({ userId: newUser._id });
     if (!customer) {
       const newCustomer = new CustomerModel({ userId: newUser._id });
       await newCustomer.save();
@@ -53,22 +53,12 @@ export const registerUser = async (req, res) => {
       customer.userId = user._id;
     }
 
-    // Return token
-    const accessToken = jwt.sign(
-      {
-        userId: newUser._id,
-        username: newUser.username,
-      },
-      process.env.JWT_KEY,
-      { expiresIn: 600 }
-    );
-
     res
       .status(200)
       .json({ success: true, msg: "Successful new account registration." });
   } catch (error) {
     console.log(error);
-    res.json({ status: 500 });
+    res.json({ status: 500, error: error });
   }
 };
 
@@ -82,6 +72,44 @@ export const registerUser = async (req, res) => {
  * @access Public
  * @returns accessToken
  */
-export const signIn = (req, res) => {
+export const signIn = async (req, res) => {
   const { username, password } = req.body;
+
+  // Check for username or password is empty
+  if (!username || !password) {
+    return res.json({
+      status: 400,
+      msg: "Missing username or password. Please check.",
+    });
+  }
+
+  const user = await UserModel.findOne({ username: username });
+
+  // Check for username is existing
+  if (!user) {
+    return res.json({
+      status: 400,
+      msg: "Unable to find account information for this username.",
+    });
+  }
+
+  // Check for hashed password
+  let isCheckedPW = await argon2.verify(user.password, password);
+  if (isCheckedPW) {
+    // Generate access token
+    const accessToken = jwt.sign(
+      {
+        userId: user._id,
+        username: user.username,
+      },
+      process.env.JWT_KEY,
+      { expiresIn: 600 }
+    );
+
+    // return access token if login is successfully
+    return res.json({
+      status: 200,
+      accessToken: accessToken,
+    });
+  }
 };
